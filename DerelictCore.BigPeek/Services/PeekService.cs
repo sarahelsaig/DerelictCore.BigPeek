@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Vanara.PInvoke;
 
-using static DerelictCore.BigPeek.Constants.HookTypes;
+using static DerelictCore.BigPeek.Constants.HookParameterTypes;
 
 namespace DerelictCore.BigPeek.Services;
 
@@ -14,6 +14,8 @@ public sealed class PeekService : IDisposable
 {
     private const string User32Dll = "user32.dll";
     private const string MagnificationDll = "magnification.dll";
+
+    private bool _isInitialized;
 
     public Task<HWND> PickWindowAsync(params HWND[] ignoredWindowHandles)
     {
@@ -64,10 +66,8 @@ public sealed class PeekService : IDisposable
                 "than the screen where the Big Peek window is located.");
         }
 
-        if (!Magnification.MagInitialize())
-        {
-            throw new ApiFailureException(MagnificationDll, "Unable to initialize the Magnifier API!");
-        }
+        _isInitialized = _isInitialized || Magnification.MagInitialize();
+        if (!_isInitialized) throw new ApiFailureException(MagnificationDll, "Unable to initialize the Magnifier API!");
 
         if (!Magnification.MagSetFullscreenTransform(magnificationFactor, windowRect.X, windowRect.Y))
         {
@@ -107,6 +107,8 @@ public sealed class PeekService : IDisposable
         return (monitorinfo.rcMonitor.Width, monitorinfo.rcMonitor.Height);
     }
 
+    public void ZoomOut() => Magnification.MagSetFullscreenTransform(1, 0, 0);
+
     private static (float Width, float Height, int X, int Y) GetWindowBounds(HWND windowHandle) =>
         User32.GetWindowRect(windowHandle, out var windowRect)
             ? (windowRect.Width, windowRect.Height, windowRect.X, windowRect.Height)
@@ -114,7 +116,7 @@ public sealed class PeekService : IDisposable
 
     public void Dispose()
     {
-        Magnification.MagSetFullscreenTransform(1, 0, 0);
+        ZoomOut();
         Magnification.MagUninitialize();
     }
 }
