@@ -5,8 +5,34 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DerelictCore.BigPeek"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Big Peek!"
+        Height="450"
+        Width="800"
+        Closed="MainWindow_OnClosed">
+    <Grid Margin="0,0,0,6">
 
+        <Grid.Resources>
+            <Style TargetType="Border">
+                <Setter Property="Padding" Value="6,6,6,0" />
+            </Style>
+        </Grid.Resources>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+
+        <Border>
+            <ScrollViewer>
+                <TextBox x:Name="StatusBox" IsReadOnly="True" TextWrapping="Wrap">
+                    Click the button below to start magnification. Close this window to stop it. If there are any errors
+                    they will show up in this log so you can copy them.
+                </TextBox>
+            </ScrollViewer>
+        </Border>
+
+        <Border Grid.Row="1">
+            <Button x:Name="PickWindow" Click="PickWindow_OnClick">Pick a Window to Enlarge!</Button>
+        </Border>
     </Grid>
 </Window>
