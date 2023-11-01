@@ -29,30 +29,55 @@ partial class Form1
     private void InitializeComponent()
     {
         PickWindowButton = new Button();
+        StatusBox = new RichTextBox();
+        StatusLabel = new Label();
         SuspendLayout();
         // 
         // PickWindowButton
         // 
-        PickWindowButton.Location = new Point(12, 12);
+        PickWindowButton.Location = new Point(12, 372);
         PickWindowButton.Name = "PickWindowButton";
-        PickWindowButton.Size = new Size(760, 537);
+        PickWindowButton.Size = new Size(760, 177);
         PickWindowButton.TabIndex = 0;
         PickWindowButton.Text = "Pick Button";
         PickWindowButton.UseVisualStyleBackColor = true;
         PickWindowButton.Click += PickWindowButton_Click;
+        // 
+        // StatusBox
+        // 
+        StatusBox.Location = new Point(12, 27);
+        StatusBox.Name = "StatusBox";
+        StatusBox.Size = new Size(760, 339);
+        StatusBox.TabIndex = 1;
+        StatusBox.Text = "";
+        // 
+        // StatusLabel
+        // 
+        StatusLabel.AutoSize = true;
+        StatusLabel.Location = new Point(12, 9);
+        StatusLabel.Name = "StatusLabel";
+        StatusLabel.Size = new Size(39, 15);
+        StatusLabel.TabIndex = 2;
+        StatusLabel.Text = "Status";
         // 
         // Form1
         // 
         AutoScaleDimensions = new SizeF(7F, 15F);
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(784, 561);
+        Controls.Add(StatusLabel);
+        Controls.Add(StatusBox);
         Controls.Add(PickWindowButton);
         Name = "Form1";
         Text = "Big Peek!";
+        FormClosing += Form1_FormClosing;
         ResumeLayout(false);
+        PerformLayout();
     }
 
     #endregion
 
     private Button PickWindowButton;
+    private RichTextBox StatusBox;
+    private Label StatusLabel;
 }

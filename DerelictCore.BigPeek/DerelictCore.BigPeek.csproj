@@ -10,7 +10,7 @@
 
     <ItemGroup>
       <PackageReference Include="System.Text.Json" Version="8.0.0-rc.2.23479.6" />
-      <PackageReference Include="Vanara.PInvoke.DwmApi" Version="3.4.17" />
+      <PackageReference Include="Vanara.PInvoke.Magnification" Version="3.4.17" />
       <PackageReference Include="Vanara.PInvoke.User32" Version="3.4.17" />
     </ItemGroup>
 
