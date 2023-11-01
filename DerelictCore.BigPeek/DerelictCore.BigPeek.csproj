@@ -5,11 +5,12 @@
         <TargetFramework>net6.0-windows</TargetFramework>
         <Nullable>enable</Nullable>
         <UseWPF>true</UseWPF>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Vanara.PInvoke.Magnification" Version="3.4.17" />
-      <PackageReference Include="Vanara.PInvoke.User32" Version="3.4.17" />
+        <PackageReference Include="Vanara.PInvoke.Magnification" Version="3.4.17"/>
+        <PackageReference Include="Vanara.PInvoke.User32" Version="3.4.17"/>
     </ItemGroup>
 
 </Project>

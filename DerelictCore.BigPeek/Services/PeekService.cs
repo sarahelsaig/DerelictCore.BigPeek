@@ -52,15 +52,10 @@ public sealed class PeekService : IDisposable
 
     public void MagnifyWindow(HWND target, float screenWidth, float screenHeight)
     {
-        if (!User32.GetWindowRect(target, out var windowRect))
-        {
-            throw new ApiFailureException(User32Dll, "Unable to get window bounds!");
-        }
-
-        var windowBounds = GetBounds(windowRect);
+        var windowRect = GetWindowBounds(target);
         var magnificationFactor = Math.Min(
-            screenWidth / windowBounds.Width,
-            screenHeight / windowBounds.Height);
+            screenWidth / windowRect.Width,
+            screenHeight / windowRect.Height);
 
         if (magnificationFactor < 1f)
         {
@@ -80,8 +75,33 @@ public sealed class PeekService : IDisposable
         }
     }
 
-    private static (float Width, float Height) GetBounds(Rectangle rectangle) =>
-        (rectangle.Width, rectangle.Height);
+    public (float Width, float Height, int X, int Y) GetWindowBounds(HWND windowHandle) =>
+        User32.GetWindowRect(windowHandle, out var windowRect)
+            ? (windowRect.Width, windowRect.Height, windowRect.X, windowRect.Height)
+            : throw new ApiFailureException(User32Dll, "Unable to get window bounds!");
+
+    public (float Width, float Height) GetScreenSize(HWND windowHandle)
+    {
+        var monitorHandle = User32.MonitorFromWindow(windowHandle, User32.MonitorFlags.MONITOR_DEFAULTTONULL);
+        if (monitorHandle.IsNull)
+        {
+            throw new ApiFailureException(User32Dll, "Failed to find the window's display monitor.");
+        }
+
+        User32.MONITORINFO monitorinfo = new User32.MONITORINFO();
+
+        unsafe
+        {
+            monitorinfo.cbSize = (uint)sizeof(User32.MONITORINFO);
+        }
+
+        if (!User32.GetMonitorInfo(monitorHandle, ref monitorinfo))
+        {
+            throw new ApiFailureException(User32Dll, $"Failed to get monitor info for monitor {monitorHandle}.");
+        }
+
+        return (monitorinfo.rcMonitor.Width, monitorinfo.rcMonitor.Height);
+    }
 
     public void Dispose()
     {
