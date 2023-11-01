@@ -28,6 +28,9 @@ namespace DerelictCore.BigPeek
                 var (windowWidth, windowHeight) = _peekService.GetScreenSize(currentWindow);
 
                 var target = await _peekService.PickWindowAsync(currentWindow);
+                var targetTitle = _peekService.GetWindowTitle(target);
+                StatusBox.Text += $"{Environment.NewLine}Magnifying window [{targetTitle}]...";
+
                 _peekService.MagnifyWindow(target, windowWidth, windowHeight);
             }
             catch (ApiFailureException exception)
@@ -57,6 +60,11 @@ namespace DerelictCore.BigPeek
                     MessageBoxButton.OK,
                     MessageBoxImage.Exclamation);
             }
+        }
+
+        private void AppendStatusText(string text)
+        {
+            StatusBox.Text += $"\n{text}".Replace("\n", Environment.NewLine);
         }
     }
 }

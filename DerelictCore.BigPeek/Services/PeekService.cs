@@ -1,8 +1,8 @@
 ﻿using DerelictCore.BigPeek.Exceptions;
 using System;
-using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading.Tasks;
 using Vanara.PInvoke;
 
@@ -75,10 +75,14 @@ public sealed class PeekService : IDisposable
         }
     }
 
-    public (float Width, float Height, int X, int Y) GetWindowBounds(HWND windowHandle) =>
-        User32.GetWindowRect(windowHandle, out var windowRect)
-            ? (windowRect.Width, windowRect.Height, windowRect.X, windowRect.Height)
-            : throw new ApiFailureException(User32Dll, "Unable to get window bounds!");
+    public string GetWindowTitle(HWND windowHandle)
+    {
+        var length = User32.GetWindowTextLength(windowHandle) + 1;
+        var builder = new StringBuilder(capacity: length);
+        User32.GetWindowText(windowHandle, builder, length);
+
+        return builder.ToString();
+    }
 
     public (float Width, float Height) GetScreenSize(HWND windowHandle)
     {
@@ -102,6 +106,11 @@ public sealed class PeekService : IDisposable
 
         return (monitorinfo.rcMonitor.Width, monitorinfo.rcMonitor.Height);
     }
+
+    private static (float Width, float Height, int X, int Y) GetWindowBounds(HWND windowHandle) =>
+        User32.GetWindowRect(windowHandle, out var windowRect)
+            ? (windowRect.Width, windowRect.Height, windowRect.X, windowRect.Height)
+            : throw new ApiFailureException(User32Dll, "Unable to get window bounds!");
 
     public void Dispose()
     {
