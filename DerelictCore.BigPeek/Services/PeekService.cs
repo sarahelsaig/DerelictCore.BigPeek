@@ -73,7 +73,13 @@ public sealed class PeekService : IDisposable
         _isInitialized = _isInitialized || Magnification.MagInitialize();
         if (!_isInitialized) throw new ApiFailureException(MagnificationDll, "Unable to initialize the Magnifier API!");
 
-        if (!Magnification.MagSetFullscreenTransform(magnificationFactor, windowRect.X, windowRect.Y))
+        var zoomRect = new MagnificationInfo(
+            screenWidth / magnificationFactor,
+            screenHeight / magnificationFactor,
+            (int)(windowRect.X + windowRect.Width / 2 - screenWidth / magnificationFactor / 2),
+            (int)(windowRect.Y + windowRect.Height / 2 - screenHeight / magnificationFactor / 2));
+
+        if (!Magnification.MagSetFullscreenTransform(magnificationFactor, zoomRect.X, zoomRect.Y))
         {
             throw new ApiFailureException(MagnificationDll, "Unable to set full screen magnification!");
         }
@@ -117,7 +123,7 @@ public sealed class PeekService : IDisposable
 
     private static MagnificationInfo GetWindowBounds(HWND windowHandle) =>
         User32.GetWindowRect(windowHandle, out var windowRect)
-            ? new MagnificationInfo(windowRect.Width, windowRect.Height, windowRect.X, windowRect.Height)
+            ? new MagnificationInfo(windowRect.Width, windowRect.Height, windowRect.X, windowRect.Y)
             : throw new ApiFailureException(User32Dll, "Unable to get window bounds!");
 
     public void Dispose()
