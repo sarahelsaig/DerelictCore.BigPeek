@@ -25,8 +25,8 @@
         <Border>
             <ScrollViewer>
                 <TextBox x:Name="StatusBox" IsReadOnly="True" TextWrapping="Wrap">
-                    Click the button below to start magnification. Close this window to stop it. If there are any errors
-                    they will show up in this log so you can copy them.
+                    Click the button below to start magnification. Press [Ctrl] + [Win] + [X] or close this window to
+                    stop it. If there are any errors they will show up in this log so you can copy them.
                 </TextBox>
             </ScrollViewer>
         </Border>

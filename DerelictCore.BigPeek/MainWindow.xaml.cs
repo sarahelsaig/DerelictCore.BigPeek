@@ -2,7 +2,10 @@
 using DerelictCore.BigPeek.Services;
 using System;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media;
+using static Vanara.PInvoke.User32.HotKeyModifiers;
 
 namespace DerelictCore.BigPeek
 {
@@ -12,12 +15,36 @@ namespace DerelictCore.BigPeek
     public partial class MainWindow : Window
     {
         private readonly PeekService _peekService;
-        
+        private HotkeyService? _zoomHotkeyService;
+
         public MainWindow()
         {
             _peekService = new PeekService();
             InitializeComponent();
         }
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+
+            try
+            {
+                var source = PresentationSource.FromVisual(this) as HwndSource ??
+                    throw new InvalidOperationException("Could not create hWnd source from window.");
+                var handle = new WindowInteropHelper(this).Handle;
+                var keyX = (uint)KeyInterop.VirtualKeyFromKey(Key.X);
+                _zoomHotkeyService = HotkeyService.Create(9000, handle, source, MOD_CONTROL | MOD_WIN, keyX, _ =>
+                    {
+                        AppendStatusText("Zooming out...");
+                        _peekService.ZoomOut();
+                    });
+            }
+            catch (Exception exception)
+            {
+                LogError(exception);
+            }
+        }
+
         private async void PickWindow_OnClick(object sender, RoutedEventArgs e)
         {
             PickWindow.IsEnabled = false;
@@ -29,27 +56,35 @@ namespace DerelictCore.BigPeek
 
                 var target = await _peekService.PickWindowAsync(currentWindow);
                 var targetTitle = _peekService.GetWindowTitle(target);
-                StatusBox.Text += $"{Environment.NewLine}Magnifying window [{targetTitle}]...";
+                AppendStatusText($"Magnifying window [{targetTitle}]...");
 
                 _peekService.MagnifyWindow(target, windowWidth, windowHeight);
             }
-            catch (ApiFailureException exception)
-            {
-                StatusBox.Text += $"{Environment.NewLine}[{exception.ApiName}] @ {exception.Caller} : {exception.Message}";
-            }
             catch (Exception exception)
             {
-                StatusBox.Text += $"\n[{exception.GetType().Name}] : {exception.Message}\n{exception.StackTrace}\n\n"
-                    .Replace("\n", Environment.NewLine);
+                LogError(exception);
             }
 
             PickWindow.IsEnabled = true;
+        }
+
+        private void LogError(Exception exception)
+        {
+            if (exception is ApiFailureException apiFailure)
+            {
+                AppendStatusText($"[{apiFailure.ApiName}] @ {apiFailure.Caller} : {apiFailure.Message}");
+            }
+            else
+            {
+                AppendStatusText($"[{exception.GetType().Name}] : {exception.Message}\n{exception.StackTrace}\n\n");
+            }
         }
 
         private void MainWindow_OnClosed(object? sender, EventArgs e)
         {
             try
             {
+                _zoomHotkeyService?.Dispose();
                 _peekService.Dispose();
             }
             catch (Exception exception)
