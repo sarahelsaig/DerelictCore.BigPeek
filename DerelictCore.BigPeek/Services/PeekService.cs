@@ -1,4 +1,5 @@
 ﻿using DerelictCore.BigPeek.Exceptions;
+using DerelictCore.BigPeek.Models;
 using System;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -52,7 +53,10 @@ public sealed class PeekService : IDisposable
         return task.Task;
     }
 
-    public void MagnifyWindow(HWND target, float screenWidth, float screenHeight)
+    public MagnificationInfo MagnifyWindow(
+        HWND target,
+        float screenWidth,
+        float screenHeight)
     {
         var windowRect = GetWindowBounds(target);
         var magnificationFactor = Math.Min(
@@ -73,6 +77,8 @@ public sealed class PeekService : IDisposable
         {
             throw new ApiFailureException(MagnificationDll, "Unable to set full screen magnification!");
         }
+
+        return windowRect with { MagnificationFactor = magnificationFactor };
     }
 
     public string GetWindowTitle(HWND windowHandle)
@@ -109,9 +115,9 @@ public sealed class PeekService : IDisposable
 
     public void ZoomOut() => Magnification.MagSetFullscreenTransform(1, 0, 0);
 
-    private static (float Width, float Height, int X, int Y) GetWindowBounds(HWND windowHandle) =>
+    private static MagnificationInfo GetWindowBounds(HWND windowHandle) =>
         User32.GetWindowRect(windowHandle, out var windowRect)
-            ? (windowRect.Width, windowRect.Height, windowRect.X, windowRect.Height)
+            ? new MagnificationInfo(windowRect.Width, windowRect.Height, windowRect.X, windowRect.Height)
             : throw new ApiFailureException(User32Dll, "Unable to get window bounds!");
 
     public void Dispose()

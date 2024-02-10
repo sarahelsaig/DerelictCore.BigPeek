@@ -4,7 +4,6 @@ using System;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
-using System.Windows.Media;
 using static Vanara.PInvoke.User32.HotKeyModifiers;
 
 namespace DerelictCore.BigPeek
@@ -56,9 +55,10 @@ namespace DerelictCore.BigPeek
 
                 var target = await _peekService.PickWindowAsync(currentWindow);
                 var targetTitle = _peekService.GetWindowTitle(target);
-                AppendStatusText($"Magnifying window [{targetTitle}]...");
+                AppendStatusText($"Magnifying window 『{targetTitle}』...");
 
-                _peekService.MagnifyWindow(target, windowWidth, windowHeight);
+                var info = _peekService.MagnifyWindow(target, windowWidth, windowHeight);
+                AppendStatusText($"Magnified window to scale {info.MagnificationFactor}x around {info.RectangleToString()}.");
             }
             catch (Exception exception)
             {
